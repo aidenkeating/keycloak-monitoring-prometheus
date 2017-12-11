@@ -20,11 +20,20 @@ public class MonitoringEventListenerProvider implements EventListenerProvider {
     private final String TYPE = "type";
     private final String OPERATION = "operation";
     private final String RESOURCE = "resource";
+    private final String DEFAULT_EVENTS_DIRECTORY_ENV_NAME = "KEYCLOAK_PROMETHEUS_EVENTS_DIR";
 
     private String eventsDirectory;
+    private String eventsDirectoryEnvName = DEFAULT_EVENTS_DIRECTORY_ENV_NAME;
 
     public MonitoringEventListenerProvider(String eventsDirectory) {
         this.eventsDirectory = eventsDirectory;
+    }
+
+    public MonitoringEventListenerProvider(String eventsDirectory, String eventsDirectoryEnvName) {
+        this.eventsDirectory = eventsDirectory;
+        if (eventsDirectoryEnvName != null) {
+            this.eventsDirectoryEnvName = eventsDirectoryEnvName;
+        }
     }
 
     @Override
@@ -67,8 +76,19 @@ public class MonitoringEventListenerProvider implements EventListenerProvider {
         return sb.toString();
     }
 
+    private String getEventsDir() {
+        if (this.eventsDirectory != null) {
+            return this.eventsDirectory;
+        }
+        if (this.eventsDirectoryEnvName != null) {
+            return System.getenv(this.eventsDirectoryEnvName);
+        }
+        return "";
+    }
+
     private File getOrCreateCounterFile(String fileName) {
-        File f = new File(eventsDirectory + File.separator + fileName);
+        logger.debug("Get events: " + this.getEventsDir());
+        File f = new File(this.getEventsDir() + File.separator + fileName);
         if (!f.exists()) {
             try {
                 logger.debug("File for name: " + fileName + "does not exist, creating");

@@ -8,16 +8,18 @@ import org.keycloak.models.KeycloakSessionFactory;
 
 public class MonitoringEventListenerProviderFactory implements EventListenerProviderFactory {
     private String eventsDirectory;
+    private String eventsDirectoryEnvName;
 
 
     @Override
     public EventListenerProvider create(KeycloakSession session) {
-        return new MonitoringEventListenerProvider(eventsDirectory);
+        return new MonitoringEventListenerProvider(eventsDirectory, eventsDirectoryEnvName);
     }
 
     @Override
     public void init(Config.Scope config) {
         this.eventsDirectory = config.get("eventsDirectory");
+        this.eventsDirectoryEnvName = config.get("eventsDirectoryEnvName");
     }
 
     @Override
